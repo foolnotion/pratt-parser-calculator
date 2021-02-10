@@ -99,9 +99,9 @@ constexpr char rp = ')';
 constexpr char sp = ' ';
 
 struct token {
-    token_kind kind; // token kind
-    int lbp; // left binding power
-    double value; // value for terminals
+    token_kind kind;  // token kind
+    int lbp;          // left binding power
+    double value;     // value for terminals
     std::string name; // name (for variables)
 
     token(token_kind kind_, int lbp_, double val_, std::string const& name_)
@@ -175,8 +175,6 @@ public:
     {
         auto [_, i] = next();
         pos_ = i;
-        //std::cout << "consumed token " << t << "\n";
-        //return t;
     }
 
     bool eof() const { return pos_ >= expr_.size(); }
@@ -188,7 +186,6 @@ public:
         std::vector<token> tokens;
         do {
             tokens.push_back(peek());
-            //tokens.push_back(consume());
             consume();
         } while (tokens.back().kind != token_kind::eof);
         return tokens;

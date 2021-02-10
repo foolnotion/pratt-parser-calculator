@@ -109,14 +109,15 @@ private:
         while(true) {
             auto op = lexer_.peek();
 
-            if (op.kind == end || op.kind == token_kind::eof || op.lbp < rbp) {
+            if (op.kind == end || op.kind == token_kind::eof || op.lbp <= rbp) {
                 break;
             }
 
             lexer_.consume();
-
             auto right = parse_bp(op.lbp, end);
+            std::cout << left.value << " " << op << " " << right.value << " = ";
             left = expr(led(this, op.kind, left.value, right.value));
+            std::cout << left << "\n";
         }
 
         return left;
@@ -124,19 +125,6 @@ private:
 
     int x = -1;
 };
-
-void parse(std::string const& str)
-{
-    std::cout << "infix string: " << str << "\n";
-    std::cout << "tokens:\n";
-    lexer lex(str);
-    auto tokens = lex.tokenize();
-    for (auto const& tok : tokens) {
-        std::cout << tok << "_";
-    }
-    std::cout << "\n";
-    std::cout << "end: " << lex.eof() << "\n";
-}
 } // namespace
 
 #endif

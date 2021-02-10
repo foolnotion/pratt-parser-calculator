@@ -90,4 +90,25 @@ TEST_CASE("Parser") {
         auto result = p.parse();
         CHECK(result == -6);
     }
+
+    SUBCASE("-(2 + 1) / (1 + 2)") {
+        infix = "-(2 + 1) / (1 + 2)";
+        pratt::parser<pratt::nud, pratt::led> p(infix, {});
+        auto result = p.parse();
+        CHECK(result == -1);
+    }
+
+    SUBCASE("3 - 2 - 1") {
+        infix = "3 - 2 - 1";
+        pratt::parser<pratt::nud, pratt::led> p(infix, {});
+        auto result = p.parse();
+        CHECK(result == 0);
+    }
+
+    SUBCASE("3 - 2 - 1 - 1") {
+        infix = "3 - 2 - 1 - 1";
+        pratt::parser<pratt::nud, pratt::led> p(infix, {});
+        auto result = p.parse();
+        CHECK(result == -1);
+    }
 }
