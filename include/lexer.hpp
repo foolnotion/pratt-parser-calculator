@@ -90,7 +90,7 @@ struct token {
     T value;     // value for terminals
     std::string name; // name (for variables)
 
-    token(token_kind kind_ = token_kind::eof, double val_ = std::numeric_limits<double>::quiet_NaN(), std::string const& name_ = "")
+    token(token_kind kind_ = token_kind::eof, T val_ = T(), std::string const& name_ = "")
         : kind(kind_)
         , value(val_)
         , name(name_)
