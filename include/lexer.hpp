@@ -82,9 +82,12 @@ constexpr char lp = '(';
 constexpr char rp = ')';
 constexpr char sp = ' ';
 
+template<typename T>
 struct token {
+    using value_t = T;
+
     token_kind kind;  // token kind
-    double value;     // value for terminals
+    T value;     // value for terminals
     std::string name; // name (for variables)
 
     token(token_kind kind_ = token_kind::eof, double val_ = std::numeric_limits<double>::quiet_NaN(), std::string const& name_ = "")
@@ -116,6 +119,7 @@ struct token {
     }
 };
 
+template<typename T, typename V>
 class lexer {
 public:
     lexer(std::string const& infix)
@@ -124,7 +128,7 @@ public:
     {
     }
 
-    token peek() const
+    T peek() const
     {
         auto [t, _] = next();
         return t;
@@ -140,9 +144,9 @@ public:
 
     void expect(token_kind k) const { assert(peek().kind == k); }
 
-    std::vector<token> tokenize()
+    std::vector<T> tokenize()
     {
-        std::vector<token> tokens;
+        std::vector<T> tokens;
         do {
             tokens.push_back(peek());
             consume();
@@ -157,10 +161,10 @@ public:
 
 private:
     // returns a new token and index
-    std::tuple<token, size_t> next() const
+    std::tuple<T, size_t> next() const
     {
         if (pos_ >= expr_.size()) {
-            return { token(token_kind::eof), expr_.size() };
+            return { T(token_kind::eof), expr_.size() };
         }
 
         auto i = pos_;
@@ -182,11 +186,11 @@ private:
         return { parse(std::string_view(expr_.data() + i, j - i)), j };
     }
 
-    token parse(std::string_view sv) const
+    T parse(std::string_view sv) const
     {
         // check if we can match a known token name
         if (auto it = token_map.find(sv); it != token_map.end()) {
-            return token(it->second);
+            return T(it->second);
         }
 
         // check if we can match a number
@@ -194,19 +198,19 @@ private:
         double val = std::strtod(sv.data(), &end);
         auto ok = std::isspace(*end) || end == sv.data() + sv.size();
         if (ok) {
-            token t(token_kind::constant);
-            t.value = val;
+            T t(token_kind::constant);
+            t.value = V{}(val);
             return t;
         }
 
         // check if we can match a variable name (all chars are alphanumeric, the first char is a letter)
         if (std::isalpha(sv.front()) && std::all_of(sv.begin(), sv.end(), [](auto c) { return std::isalnum(c); })) {
-            token t(token_kind::variable);
+            T t(token_kind::variable);
             t.name = std::string(sv.begin(), sv.end());
             return t;
         }
 
-        return token(token_kind::eof);
+        return T(token_kind::eof);
     }
 
     std::string expr_;

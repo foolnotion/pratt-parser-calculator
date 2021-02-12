@@ -35,11 +35,13 @@ std::array<int, token_count> token_precedence = {
      0, // eof
 };
 
+template<typename T>
 struct nud {
-    using T = double;
+    using token_t = T;
+    using value_t = typename T::value_t;
 
     template <typename Parser>
-    T operator()(Parser& parser, token_kind tok, T val)
+    value_t operator()(Parser& parser, token_kind tok, value_t val)
     {
         auto bp = token_precedence[tok]; // binding power
 
@@ -96,11 +98,13 @@ struct nud {
     }
 };
 
+template<typename T>
 struct led {
-    using T = double;
+    using token_t = T;
+    using value_t = typename T::value_t;
 
     template <typename Parser>
-    T operator()(Parser& parser, token_kind tok, T lhs, T rhs)
+    value_t operator()(Parser& parser, token_kind tok, value_t lhs, value_t rhs)
     {
         switch (tok) {
         case token_kind::add:
@@ -124,19 +128,28 @@ struct led {
     }
 };
 
-template <typename NUD, typename LED>
+struct identity {
+    template<typename U>
+    constexpr auto operator()(U&& v) const noexcept -> decltype(std::forward<U>(v))
+    {
+        return std::forward<U>(v);
+    }
+};
+
+template <typename NUD, typename LED, typename CONV>
 class parser {
 public:
-    using T = typename NUD::T;
+    using token_t = typename NUD::token_t;
+    using value_t = typename token_t::value_t;
 
     parser(std::string const& infix, std::unordered_map<std::string, ulong> const& vars)
         : lexer_(infix)
         , vars_(vars)
     {
-        static_assert(std::is_same_v<typename NUD::T, typename LED::T>);
+        static_assert(std::is_same_v<typename NUD::token_t, typename LED::token_t>);
     }
 
-    T parse()
+    value_t parse()
     {
         return parse_bp(0).value;
     }
@@ -145,12 +158,16 @@ public:
     friend LED;
 
 private:
-    lexer lexer_;
+    lexer<typename NUD::token_t, CONV> lexer_;
     std::unordered_map<std::string, ulong> vars_;
 
-    token expr(T value) const { return token(token_kind::constant, value); }
+    token_t expr(value_t value) const { return token_t(token_kind::constant, value); }
 
-    token parse_bp(int rbp = 0, token_kind end = token_kind::eof)
+    inline int precedence(token_kind tok) const {
+        return token_precedence[tok];
+    }
+
+    token_t parse_bp(int rbp = 0, token_kind end = token_kind::eof)
     {
         NUD nud;
         LED led;

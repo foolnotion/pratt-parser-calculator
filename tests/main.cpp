@@ -2,11 +2,17 @@
 #include "doctest.h"
 #include "parser.hpp"
 #include <string>
+#include <functional>
 
 namespace pratt::test {
 
-pratt::nud::T eval(std::string const& infix) {
-    return pratt::parser<pratt::nud, pratt::led>(infix, {}).parse();
+using T = token<double>;
+using NUD = pratt::nud<T>;
+using LED = pratt::led<T>;
+using CONV = pratt::identity;
+
+pratt::nud<T>::value_t eval(std::string const& infix) {
+    return pratt::parser<NUD, LED, CONV>(infix, {}).parse();
 }
 
 TEST_CASE("Tokenizer")
@@ -15,7 +21,7 @@ TEST_CASE("Tokenizer")
     {
         std::string infix("1 + 2");
 
-        pratt::lexer lex(infix);
+        pratt::lexer<T, CONV> lex(infix);
         auto tokens = lex.tokenize();
         CHECK(tokens.size() == 4);
     }
@@ -24,7 +30,7 @@ TEST_CASE("Tokenizer")
     {
         std::string infix("(1 + 2)");
 
-        pratt::lexer lex(infix);
+        pratt::lexer<T, CONV> lex(infix);
         auto tokens = lex.tokenize();
         std::cout << "tokens:\n";
         for (auto const& t : tokens) {
@@ -36,7 +42,7 @@ TEST_CASE("Tokenizer")
     SUBCASE("1 + exp(2) + log(3)")
     {
         std::string infix("1 + exp(2) + log(3)");
-        pratt::lexer lex(infix);
+        pratt::lexer<T, CONV> lex(infix);
         auto tokens = lex.tokenize();
         std::cout << "tokens:\n";
         for (auto const& t : tokens) {
@@ -48,7 +54,7 @@ TEST_CASE("Tokenizer")
     SUBCASE("exp(tan(5))")
     {
         std::string infix("exp(tan(5))");
-        pratt::lexer lex(infix);
+        pratt::lexer<T, CONV> lex(infix);
         auto tokens = lex.tokenize();
         std::cout << "tokens:\n";
         for (auto const& t : tokens) {
