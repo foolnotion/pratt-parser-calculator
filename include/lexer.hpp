@@ -5,6 +5,7 @@
 #include <cassert>
 #include <charconv>
 #include <iostream>
+#include <limits>
 #include <optional>
 #include <ostream>
 #include <string_view>
@@ -27,6 +28,7 @@ enum token_kind : int {
     sqrt,
     cbrt,
     square,
+    pow,
     variable,
     constant,
     eof
@@ -49,29 +51,10 @@ std::array<const char*, token_count> token_name = {
     "sqrt",
     "cbrt",
     "square",
+    "^",
     "var",
     "C",
     "EOF"
-};
-
-std::array<int, token_count> token_precedence = {
-    0, // lparen
-    0, // rparen
-    10, // add
-    10, // sub
-    20, // mul
-    20, // div
-    30, // log
-    30, // mul
-    30, // sin
-    30, // cos
-    30, // tan
-    30, // sqrt
-    30, // cbrt
-    30, // square
-    40, // variable
-    40, // constant
-    0, // eof
 };
 
 const std::unordered_map<std::string_view, token_kind> token_map = {
@@ -88,7 +71,8 @@ const std::unordered_map<std::string_view, token_kind> token_map = {
     { "tan", token_kind::tan },
     { "sqrt", token_kind::sqrt },
     { "cbrt", token_kind::cbrt },
-    { "square", token_kind::square }
+    { "square", token_kind::square },
+    { "^", token_kind::pow }
 };
 
 template <char... args>
@@ -100,38 +84,13 @@ constexpr char sp = ' ';
 
 struct token {
     token_kind kind;  // token kind
-    int lbp;          // left binding power
     double value;     // value for terminals
     std::string name; // name (for variables)
 
-    token(token_kind kind_, int lbp_, double val_, std::string const& name_)
+    token(token_kind kind_ = token_kind::eof ,double val_ = std::numeric_limits<double>::quiet_NaN(), std::string const& name_ = "")
         : kind(kind_)
-        , lbp(lbp_)
         , value(val_)
         , name(name_)
-    {
-    }
-
-    token(token_kind kind_, int lbp_, double val_)
-        : kind(kind_)
-        , lbp(lbp_)
-        , value(val_)
-    {
-    }
-
-    token(token_kind kind_, int lbp_)
-        : kind(kind_)
-        , lbp(lbp_)
-    {
-    }
-
-    token(token_kind kind_)
-        : token(kind_, token_precedence[static_cast<int>(kind_)])
-    {
-    }
-
-    token()
-        : token(token_kind::eof)
     {
     }
 
