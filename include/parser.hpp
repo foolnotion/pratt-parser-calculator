@@ -148,7 +148,7 @@ private:
     lexer lexer_;
     std::unordered_map<std::string, ulong> vars_;
 
-    token expr(T value, int bp = 0) const { return token(token_kind::constant, value); }
+    token expr(T value) const { return token(token_kind::constant, value); }
 
     token parse_bp(int rbp = 0, token_kind end = token_kind::eof)
     {
