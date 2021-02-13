@@ -1,7 +1,6 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.12)
 
-include(ExternalProject)
-find_package(Git REQUIRED)
+include(FetchContent)
 
 project(
     expression-parser
@@ -10,31 +9,28 @@ project(
     LANGUAGES CXX
 )
 
-ExternalProject_Add(
+FetchContent_Declare(
     doctest
-    PREFIX ${CMAKE_BINARY_DIR}/doctest
-    GIT_REPOSITORY https://github.com/onqtam/doctest.git
-    TIMEOUT 10
-    UPDATE_COMMAND ${GIT_EXECUTABLE} pull
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
-    LOG_DOWNLOAD ON
+    URL https://raw.githubusercontent.com/onqtam/doctest/master/doctest/doctest.h
+    DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}/tests/
+    DOWNLOAD_NO_EXTRACT 1
 )
 
-# Expose required variable (DOCTEST_INCLUDE_DIR) to parent scope
-ExternalProject_Get_Property(doctest source_dir)
-set(DOCTEST_INCLUDE_DIR ${source_dir}/doctest CACHE INTERNAL "Path to include folder for doctest")
+FetchContent_MakeAvailable(doctest)
 
 # Export compile commands
-if(CMAKE_EXPORT_COMPILE_COMMANDS)
-    set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
-endif()
+set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
 
 add_library(expression-parser INTERFACE)
 target_include_directories(expression-parser INTERFACE include/)
 target_compile_features(expression-parser INTERFACE cxx_std_17)
 
-add_executable(expression-parser-test tests/main.cpp)
-target_include_directories(expression-parser-test PRIVATE ${DOCTEST_INCLUDE_DIR})
+add_executable(calculator src/calculator.cpp)
+target_link_libraries(calculator expression-parser)
+
+add_executable(sexpr src/sexpr.cpp)
+target_link_libraries(sexpr expression-parser)
+
+add_executable(expression-parser-test tests/calculator.cpp)
+target_include_directories(expression-parser-test PRIVATE src/)
 target_link_libraries(expression-parser-test expression-parser)

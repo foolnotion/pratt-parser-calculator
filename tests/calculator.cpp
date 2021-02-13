@@ -1,17 +1,18 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
-#include "parser.hpp"
 #include <string>
 #include <functional>
 
+#include "calculator.hpp"
+
 namespace pratt::test {
 
-using T = token<double>;
-using NUD = pratt::nud<T>;
-using LED = pratt::led<T>;
-using CONV = pratt::identity;
+using T = pratt::token<double>;
+using NUD = pratt::calculator::nud;
+using LED = pratt::calculator::led;
+using CONV = pratt::calculator::identity;
 
-pratt::nud<T>::value_t eval(std::string const& infix) {
+double eval(std::string const& infix) {
     return pratt::parser<NUD, LED, CONV>(infix, {}).parse();
 }
 
