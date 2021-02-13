@@ -5,8 +5,6 @@
 
 int main(int argc, char** argv) {
 
-    using T = pratt::token<double>;
-
     using NUD  = pratt::sexpr::nud;
     using LED  = pratt::sexpr::led;
     using CONV = pratt::sexpr::conv;
@@ -21,6 +19,7 @@ int main(int argc, char** argv) {
         }
         catch(std::exception e) {
             std::cout << "error parsing input string.\n";
+            std::cout << e.what() << "\n";
         }
     }
     return 0;

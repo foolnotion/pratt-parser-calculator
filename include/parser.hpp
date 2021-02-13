@@ -54,6 +54,13 @@ private:
     lexer<typename NUD::token_t, CONV> lexer_;
     std::unordered_map<std::string, ulong> vars_;
 
+    std::optional<ulong> get_hash(std::string const& name) const {
+        auto it = vars_.find(name);
+        return it == vars_.end()
+            ? std::nullopt
+            : std::make_optional(it->second);
+    }
+
     token_t expr(value_t value) const { return token_t(token_kind::constant, value); }
 
     inline int precedence(token_kind tok) const {
@@ -66,7 +73,7 @@ private:
         LED led;
 
         auto left = lexer_.peek(); lexer_.consume();
-        left.value = nud(*this, left.kind, left.value);
+        left.value = nud(*this, left.kind, left);
 
         while(true) {
             auto op = lexer_.peek();
@@ -89,7 +96,7 @@ private:
             lexer_.consume();
 
             auto right = parse_bp(bp, end);
-            left = expr(led(*this, op.kind, left.value, right.value));
+            left = expr(led(*this, op.kind, left, right));
         }
 
         return left;

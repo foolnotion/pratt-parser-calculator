@@ -1,7 +1,8 @@
 language: cpp
 dist: focal 
 compiler:
-    gcc
+    - gcc
+    - clang
 
 script: 
   - mkdir build

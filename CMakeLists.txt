@@ -1,13 +1,14 @@
 cmake_minimum_required(VERSION 3.12)
 
-include(FetchContent)
-
 project(
     expression-parser
     VERSION 1.0.0.0
     DESCRIPTION "An operator precedence parser based on the Pratt algorithm."
     LANGUAGES CXX
 )
+
+include(CTest)
+include(FetchContent)
 
 FetchContent_Declare(
     doctest
@@ -34,3 +35,6 @@ target_link_libraries(sexpr expression-parser)
 add_executable(expression-parser-test tests/calculator.cpp)
 target_include_directories(expression-parser-test PRIVATE src/)
 target_link_libraries(expression-parser-test expression-parser)
+
+add_test(NAME expression-parser-test COMMAND expression-parser-test)
+enable_testing()
