@@ -1,15 +1,11 @@
-#ifndef LEXER_HPP
-#define LEXER_HPP
+#ifndef PRATT_LEXER_HPP
+#define PRATT_LEXER_HPP
 
 #include <algorithm>
-#include <cassert>
-#include <charconv>
-#include <iostream>
-#include <limits>
-#include <optional>
 #include <ostream>
 #include <string_view>
 #include <unordered_map>
+#include <vector>
 
 namespace pratt {
 
