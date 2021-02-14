@@ -20,13 +20,17 @@ struct nud {
     using value_t = typename token_t::value_t;
 
     template <typename Parser>
-    value_t operator()(Parser& parser, token_kind tok, value_t val)
+    value_t operator()(Parser& parser, token_kind tok, token_t const& left)
     {
         auto bp = token_precedence[tok]; // binding power
 
         switch (tok) {
         case token_kind::constant: {
-            return val;
+            return left.value;
+        }
+
+        case token_kind::variable: {
+            return left.name;
         }
 
         case token_kind::sub:
@@ -57,8 +61,11 @@ struct led {
     using value_t = token_t::value_t;
 
     template <typename Parser>
-    value_t operator()(Parser& parser, token_kind tok, value_t lhs, value_t rhs)
+    value_t operator()(Parser& parser, token_kind tok, token_t const& left, token_t const& right)
     {
+        auto lhs = left.value;
+        auto rhs = right.value;
+
         switch (tok) {
         case token_kind::add:
         case token_kind::sub:
