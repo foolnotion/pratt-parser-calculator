@@ -191,12 +191,10 @@ private:
             return T(it->second);
         }
 
+        // check if we can match a double value
         double result;
         auto answer = fast_float::from_chars(sv.data(), sv.data() + sv.size(), result);
-        if(answer.ec != std::errc()) {
-            std::cerr << "parsing failure\n";
-            std::abort();
-        } else {
+        if(answer.ec == std::errc()) {
             T t(token_kind::constant);
             t.value = V{}(result);
             return t;
