@@ -55,8 +55,8 @@ struct led {
     template <typename Parser>
     value_t operator()(Parser& parser, token_kind tok, token_t const& left, token_t const& right)
     {
-        auto lhs = left.value;
-        auto rhs = right.value;
+        auto const& lhs = left.value;
+        auto const& rhs = right.value;
 
         switch (tok) {
         case token_kind::add:
