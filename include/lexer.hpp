@@ -2,10 +2,12 @@
 #define PRATT_LEXER_HPP
 
 #include <algorithm>
+#include <iostream>
 #include <ostream>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
+#include "fast_float/fast_float.h"
 
 namespace pratt {
 
@@ -189,13 +191,14 @@ private:
             return T(it->second);
         }
 
-        // check if we can match a number
-        char* end;
-        double val = std::strtod(sv.data(), &end);
-        auto ok = std::isspace(*end) || end == sv.data() + sv.size();
-        if (ok) {
+        double result;
+        auto answer = fast_float::from_chars(sv.data(), sv.data() + sv.size(), result);
+        if(answer.ec != std::errc()) {
+            std::cerr << "parsing failure\n";
+            std::abort();
+        } else {
             T t(token_kind::constant);
-            t.value = V{}(val);
+            t.value = V{}(result);
             return t;
         }
 
