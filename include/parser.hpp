@@ -1,6 +1,7 @@
 #ifndef PRATT_PARSER_HPP
 #define PRATT_PARSER_HPP
 
+#include <cassert>
 #include <cmath>
 #include <unordered_map>
 
@@ -75,28 +76,33 @@ private:
         auto left = lexer_.peek(); lexer_.consume();
         left.value = nud(*this, left.kind, left);
 
-        while(true) {
-            auto op = lexer_.peek();
+        if (left.kind == token_kind::lparen) {
+            assert(lexer_.peek().kind == token_kind::rparen);
+            lexer_.consume(); // eat rparen
+        }
 
-            if (op.kind == end) {
-                lexer_.consume();
+        while(true) {
+            auto next = lexer_.peek();
+
+            if (next.kind == end) {
                 break;
             }
 
-            auto lbp = token_precedence[op.kind];
+            auto lbp = token_precedence[next.kind];
 
             if (lbp <= rbp) {
                 break;
             }
 
-            auto bp = (op.kind >= token_kind::add && op.kind <= token_kind::div)
+            auto bp = (next.kind >= token_kind::add && next.kind <= token_kind::div)
                 ? lbp      // left-associative
                 : lbp - 1; // right-associative
 
             lexer_.consume();
 
             auto right = parse_bp(bp, end);
-            left = expr(led(*this, op.kind, left, right));
+            auto op = next.kind;
+            left = expr(led(*this, op, left, right));
         }
 
         return left;
