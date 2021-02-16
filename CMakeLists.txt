@@ -35,16 +35,21 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(doctest fast_float robin_hood)
 
-set(PRATT_PARSER_INCLUDE_DIRS
-    "${PROJECT_SOURCE_DIR}/include"
+set(THIRDPARTY_INCLUDE_DIRS
     "${fast_float_SOURCE_DIR}/include"
-    "${robin_hood_SOURCE_DIR}" PARENT_SCOPE)
+    "${robin_hood_SOURCE_DIR}")
+
+if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
+    set(PRATT_PARSER_INCLUDE_DIRS
+        "${PROJECT_SOURCE_DIR}/include"
+        "${THIRDPARTY_INCLUDE_DIRS}" PARENT_SCOPE)
+endif()
 
 # Export compile commands
 set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
 
 add_library(expression-parser INTERFACE)
-target_include_directories(expression-parser INTERFACE ${PRATT_PARSER_INCLUDE_DIRS})
+target_include_directories(expression-parser INTERFACE ./include ${THIRDPARTY_INCLUDE_DIRS})
 target_compile_features(expression-parser INTERFACE cxx_std_17)
 
 add_executable(calculator src/calculator.cpp)
