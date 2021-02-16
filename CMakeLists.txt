@@ -27,9 +27,10 @@ FetchContent_Declare(
 
 FetchContent_Declare(
     robin_hood
-    DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}/thirdparty/robin_hood
     URL https://raw.githubusercontent.com/martinus/robin-hood-hashing/master/src/include/robin_hood.h
     DOWNLOAD_NO_EXTRACT 1
+    DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}/thirdparty/robin_hood
+    SOURCE_DIR ${PROJECT_SOURCE_DIR}/thirdparty/robin_hood
 )
 
 FetchContent_MakeAvailable(doctest fast_float robin_hood)
