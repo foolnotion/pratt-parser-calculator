@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <vector>
 #include "fast_float/fast_float.h"
+#include "robin_hood.h"
 
 namespace pratt {
 
@@ -55,7 +56,7 @@ std::array<const char*, token_count> token_name = {
     "EOF"
 };
 
-const std::unordered_map<std::string_view, token_kind> token_map = {
+const robin_hood::unordered_flat_map<std::string_view, token_kind> token_map = {
     { "(", token_kind::lparen },
     { ")", token_kind::rparen },
     { "+", token_kind::add },

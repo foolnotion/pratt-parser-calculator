@@ -25,13 +25,25 @@ FetchContent_Declare(
     SOURCE_DIR ${PROJECT_SOURCE_DIR}/thirdparty/fast_float
 )
 
-FetchContent_MakeAvailable(doctest fast_float)
+FetchContent_Declare(
+    robin_hood
+    DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}/thirdparty/robin_hood
+    URL https://raw.githubusercontent.com/martinus/robin-hood-hashing/master/src/include/robin_hood.h
+    DOWNLOAD_NO_EXTRACT 1
+)
+
+FetchContent_MakeAvailable(doctest fast_float robin_hood)
+
+set(PRATT_PARSER_INCLUDE_DIRS
+    "${PROJECT_SOURCE_DIR}/include"
+    "${fast_float_SOURCE_DIR}/include"
+    "${robin_hood_SOURCE_DIR}")
 
 # Export compile commands
 set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
 
 add_library(expression-parser INTERFACE)
-target_include_directories(expression-parser INTERFACE include/ thirdparty/fast_float/include)
+target_include_directories(expression-parser INTERFACE ${PRATT_PARSER_INCLUDE_DIRS})
 target_compile_features(expression-parser INTERFACE cxx_std_17)
 
 add_executable(calculator src/calculator.cpp)
