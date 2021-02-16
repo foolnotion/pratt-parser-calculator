@@ -38,7 +38,7 @@ FetchContent_MakeAvailable(doctest fast_float robin_hood)
 set(PRATT_PARSER_INCLUDE_DIRS
     "${PROJECT_SOURCE_DIR}/include"
     "${fast_float_SOURCE_DIR}/include"
-    "${robin_hood_SOURCE_DIR}")
+    "${robin_hood_SOURCE_DIR}" PARENT_SCOPE)
 
 # Export compile commands
 set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
