@@ -30,7 +30,7 @@ std::array<int, token_count> token_precedence = {
      0, // eof
 };
 
-template <typename NUD, typename LED, typename CONV, typename Map = std::unordered_map<std::string, ulong>>
+template <typename NUD, typename LED, typename CONV, typename Map = std::unordered_map<std::string, uint64_t>>
 class parser {
 public:
     using token_t = typename NUD::token_t;
@@ -55,7 +55,8 @@ private:
     lexer<typename NUD::token_t, CONV> lexer_;
     Map vars_;
 
-    std::optional<ulong> get_hash(std::string const& name) const {
+    template<typename T = typename Map::value_type>
+    auto get_desc(std::string const& name) const -> std::optional<T> {
         auto it = vars_.find(name);
         return it == vars_.end()
             ? std::nullopt

@@ -86,7 +86,7 @@ struct token {
     using value_t = T;
 
     token_kind kind;  // token kind
-    T value;     // value for terminals
+    T value;          // value for terminals
     std::string name; // name (for variables)
 
     token(token_kind kind_ = token_kind::eof, T val_ = T(), std::string const& name_ = "")
