@@ -55,7 +55,7 @@ private:
     lexer<typename NUD::token_t, CONV> lexer_;
     Map vars_;
 
-    template<typename T = typename Map::value_type>
+    template<typename T = typename Map::mapped_type>
     auto get_desc(std::string const& name) const -> std::optional<T> {
         auto it = vars_.find(name);
         return it == vars_.end()
