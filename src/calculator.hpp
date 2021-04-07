@@ -43,6 +43,10 @@ struct nud {
             return std::tan(parser.parse_bp(bp, token_kind::eof).value);
         }
 
+        case token_kind::tanh: {
+            return std::tanh(parser.parse_bp(bp, token_kind::eof).value);
+        }
+
         case token_kind::lparen: {
             return parser.parse_bp(bp, token_kind::rparen).value;
         }

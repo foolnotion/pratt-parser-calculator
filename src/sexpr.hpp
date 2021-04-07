@@ -31,6 +31,7 @@ struct nud {
         case token_kind::sin:
         case token_kind::cos:
         case token_kind::tan:
+        case token_kind::tanh:
         case token_kind::sqrt:
         case token_kind::cbrt:
         case token_kind::square: {
