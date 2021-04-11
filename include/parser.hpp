@@ -9,7 +9,7 @@
 
 namespace pratt {
 
-std::array<int, token_count> token_precedence = {
+static constexpr std::array<int, token_count> token_precedence = {
      0, // lparen
      0, // rparen
     10, // add
@@ -43,7 +43,7 @@ public:
         static_assert(std::is_same_v<typename NUD::token_t, typename LED::token_t>);
     }
 
-    value_t parse()
+    inline value_t parse()
     {
         return parse_bp(0).value;
     }
@@ -56,20 +56,20 @@ private:
     Map vars_;
 
     template<typename T = typename Map::mapped_type>
-    auto get_desc(std::string const& name) const -> std::optional<T> {
+    inline auto get_desc(std::string const& name) const -> std::optional<T> {
         auto it = vars_.find(name);
         return it == vars_.end()
             ? std::nullopt
             : std::make_optional(it->second);
     }
 
-    token_t expr(value_t value) const { return token_t(token_kind::constant, value); }
+    inline token_t expr(value_t value) const { return token_t(token_kind::constant, value); }
 
     inline int precedence(token_kind tok) const {
         return token_precedence[tok];
     }
 
-    token_t parse_bp(int rbp = 0, token_kind end = token_kind::eof)
+    inline token_t parse_bp(int rbp = 0, token_kind end = token_kind::eof)
     {
         NUD nud;
         LED led;

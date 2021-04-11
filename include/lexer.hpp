@@ -36,7 +36,7 @@ enum token_kind : int {
 
 constexpr int token_count = token_kind::eof + 1;
 
-std::array<const char*, token_count> token_name = {
+static constexpr std::array<const char*, token_count> token_name = {
     "(",
     ")",
     "+",
@@ -130,23 +130,23 @@ public:
     {
     }
 
-    T peek() const
+    inline T peek() const
     {
         auto [t, _] = next();
         return t;
     }
 
-    void consume()
+    inline void consume()
     {
         auto [_, i] = next();
         pos_ = i;
     }
 
-    bool eof() const { return pos_ >= expr_.size(); }
+    inline bool eof() const { return pos_ >= expr_.size(); }
 
-    void expect(token_kind k) const { assert(peek().kind == k); }
+    inline void expect(token_kind k) const { assert(peek().kind == k); }
 
-    std::vector<T> tokenize()
+    inline std::vector<T> tokenize()
     {
         std::vector<T> tokens;
         do {
@@ -156,14 +156,14 @@ public:
         return tokens;
     }
 
-    void reset()
+    inline void reset()
     {
         pos_ = 0;
     }
 
 private:
     // returns a new token and index
-    std::tuple<T, size_t> next() const
+    inline std::tuple<T, size_t> next() const
     {
         if (pos_ >= expr_.size()) {
             return { T(token_kind::eof), expr_.size() };
@@ -188,7 +188,7 @@ private:
         return { parse(std::string_view(expr_.data() + i, j - i)), j };
     }
 
-    T parse(std::string_view sv) const
+    inline T parse(std::string_view sv) const
     {
         // check if we can match a known token name
         if (auto it = token_map.find(sv); it != token_map.end()) {
