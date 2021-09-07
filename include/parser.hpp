@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cmath>
 #include <unordered_map>
+#include <optional>
 
 #include "lexer.hpp"
 
