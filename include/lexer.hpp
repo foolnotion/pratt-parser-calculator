@@ -205,7 +205,7 @@ private:
         }
 
         // check if we can match a variable name (all chars are alphanumeric, the first char is a letter)
-        if (std::isalpha(sv.front()) && std::all_of(sv.begin(), sv.end(), [](auto c) { return std::isalnum(c); })) {
+        if (std::isalpha(sv.front()) && std::all_of(sv.begin(), sv.end(), [](auto c) { return std::isalnum(c) || is<'_'>(c); })) {
             T t(token_kind::variable);
             t.name = std::string(sv.begin(), sv.end());
             return t;
