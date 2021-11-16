@@ -1,9 +1,9 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include "doctest.h"
+#include "doctest/doctest.h"
 #include <string>
 #include <functional>
 
-#include "calculator.hpp"
+#include "../example/calculator.hpp"
 
 namespace pratt::test {
 
@@ -65,35 +65,35 @@ TEST_CASE("Tokenizer")
     }
 }
 
-#define SUBCASE_(x, y) SUBCASE(x) { CHECK_EQ(eval(x), y); }
+#define CHECK_SUBCASE(x, y) SUBCASE(x) { CHECK_EQ(eval(x), y); }
 
 TEST_CASE("Parser")
 {
-    SUBCASE_("1 + 2",               3);
-    SUBCASE_("-1 + 2",              1);
-    SUBCASE_("1 + 2 * 3",           7);
-    SUBCASE_("(1 + 2)",             3);
-    SUBCASE_("-(1 + 2)",            -3);
-    SUBCASE_("(1 + 2) - 1",         2);
-    SUBCASE_("(1 + 2) * (3 + 4)",   21);
-    SUBCASE_("(1 + 2) * 3",         9);
-    SUBCASE_("(1 + 3) * 3",         12);
-    SUBCASE_("3 * 1 + 2",           5);
-    SUBCASE_("3 * (1 + 2)",         9);
-    SUBCASE_("2 * -(1 + 2)",        -6);
-    SUBCASE_("-(2 + 1) / (1 + 2)",  -1);
-    SUBCASE_("3 - 2 - 1",           0);
-    SUBCASE_("3 - 2 - 1 - 1",       -1);
-    SUBCASE_("2 ^ 3 ^ 2",           512);
-    SUBCASE_("(2 ^ 3) ^ 2",         64);
-    SUBCASE_("exp(2)",              std::exp(2));
-    SUBCASE_("log(3)",              std::log(3));
-    SUBCASE_("sin(4)",              std::sin(4));
-    SUBCASE_("cos(5)",              std::cos(5));
-    SUBCASE_("2 * cos(5)",          2 * std::cos(5));
-    SUBCASE_("exp(tan(5))",         std::exp(std::tan(5)));
-    SUBCASE_("square(exp(tan(5)))", std::pow(std::exp(std::tan(5)), 2));
-    SUBCASE_("cos(5) * sin(6)",     std::cos(5) * std::sin(6));
+    CHECK_SUBCASE("1 + 2",               3);
+    CHECK_SUBCASE("-1 + 2",              1);
+    CHECK_SUBCASE("1 + 2 * 3",           7);
+    CHECK_SUBCASE("(1 + 2)",             3);
+    CHECK_SUBCASE("-(1 + 2)",            -3);
+    CHECK_SUBCASE("(1 + 2) - 1",         2);
+    CHECK_SUBCASE("(1 + 2) * (3 + 4)",   21);
+    CHECK_SUBCASE("(1 + 2) * 3",         9);
+    CHECK_SUBCASE("(1 + 3) * 3",         12);
+    CHECK_SUBCASE("3 * 1 + 2",           5);
+    CHECK_SUBCASE("3 * (1 + 2)",         9);
+    CHECK_SUBCASE("2 * -(1 + 2)",        -6);
+    CHECK_SUBCASE("-(2 + 1) / (1 + 2)",  -1);
+    CHECK_SUBCASE("3 - 2 - 1",           0);
+    CHECK_SUBCASE("3 - 2 - 1 - 1",       -1);
+    CHECK_SUBCASE("2 ^ 3 ^ 2",           512);
+    CHECK_SUBCASE("(2 ^ 3) ^ 2",         64);
+    CHECK_SUBCASE("exp(2)",              std::exp(2));
+    CHECK_SUBCASE("log(3)",              std::log(3));
+    CHECK_SUBCASE("sin(4)",              std::sin(4));
+    CHECK_SUBCASE("cos(5)",              std::cos(5));
+    CHECK_SUBCASE("2 * cos(5)",          2 * std::cos(5));
+    CHECK_SUBCASE("exp(tan(5))",         std::exp(std::tan(5)));
+    CHECK_SUBCASE("square(exp(tan(5)))", std::pow(std::exp(std::tan(5)), 2));
+    CHECK_SUBCASE("cos(5) * sin(6)",     std::cos(5) * std::sin(6));
 }
 
 } // namespace

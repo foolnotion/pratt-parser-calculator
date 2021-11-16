@@ -1,7 +1,7 @@
 #ifndef PRATT_CALCULATOR_HPP
 #define PRATT_CALCULATOR_HPP
 
-#include "parser.hpp"
+#include "pratt-parser/parser.hpp"
 
 namespace pratt::calculator {
 
@@ -76,7 +76,7 @@ struct led {
     using value_t = typename token_t::value_t;
 
     template <typename Parser>
-    value_t operator()(Parser& parser, token_kind tok, token_t const& left, token_t const& right)
+    value_t operator()(Parser&, token_kind tok, token_t const& left, token_t const& right)
     {
         auto lhs = left.value;
         auto rhs = right.value;

@@ -1,7 +1,7 @@
 #ifndef PRATT_SEXPR_HPP
 #define PRATT_SEXPR_HPP
 
-#include "parser.hpp"
+#include "pratt-parser/parser.hpp"
 
 #include <sstream>
 
@@ -54,7 +54,7 @@ struct led {
     using value_t = token_t::value_t;
 
     template <typename Parser>
-    value_t operator()(Parser& parser, token_kind tok, token_t const& left, token_t const& right)
+    value_t operator()(Parser&, token_kind tok, token_t const& left, token_t const& right)
     {
         auto const& lhs = left.value;
         auto const& rhs = right.value;

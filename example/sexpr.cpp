@@ -1,15 +1,12 @@
 #include <iostream>
 #include <string>
 
-#include "calculator.hpp"
+#include "sexpr.hpp"
 
-int main(int argc, char** argv) {
-
-    using T = pratt::token<double>;
-
-    using NUD  = pratt::calculator::nud;
-    using LED  = pratt::calculator::led;
-    using CONV = pratt::calculator::identity;
+int main(int, char**) {
+    using NUD  = pratt::sexpr::nud;
+    using LED  = pratt::sexpr::led;
+    using CONV = pratt::sexpr::conv;
 
     std::string input;
     while(std::getline(std::cin, input)) {
@@ -19,8 +16,9 @@ int main(int argc, char** argv) {
             std::cout << input << " = " << result << "\n";
             input.clear();
         }
-        catch(std::exception e) {
+        catch(std::exception& e) {
             std::cout << "error parsing input string.\n";
+            std::cout << e.what() << "\n";
         }
     }
     return 0;

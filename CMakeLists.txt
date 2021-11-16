@@ -1,69 +1,62 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.14)
+
+include(cmake/prelude.cmake)
 
 project(
-    expression-parser
-    VERSION 1.0.0.0
-    DESCRIPTION "An operator precedence parser based on the Pratt algorithm."
-    LANGUAGES CXX
+    pratt-parser
+    VERSION 0.1.0
+    DESCRIPTION "Pratt parser"
+    HOMEPAGE_URL "https://github.com/foolnotion/pratt-parser-calculator"
+    LANGUAGES CXX 
 )
 
-include(CTest)
-include(FetchContent)
+docs_early_return()
 
-FetchContent_Declare(
-    doctest
-    URL https://raw.githubusercontent.com/onqtam/doctest/master/doctest/doctest.h
-    DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}/tests/
-    DOWNLOAD_NO_EXTRACT 1
+include(cmake/project-is-top-level.cmake)
+include(cmake/variables.cmake)
+
+# ---- Declare library ----
+
+add_library(pratt-parser_pratt-parser INTERFACE)
+add_library(pratt-parser::pratt-parser ALIAS pratt-parser_pratt-parser)
+
+set_property(
+    TARGET pratt-parser_pratt-parser PROPERTY
+    EXPORT_NAME pratt-parser
 )
 
-FetchContent_Declare(
-    fast_float
-    GIT_REPOSITORY https://github.com/fastfloat/fast_float
-    GIT_TAG main
-    DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}/thirdparty/fast_float
-    SOURCE_DIR ${PROJECT_SOURCE_DIR}/thirdparty/fast_float
+target_include_directories(
+    pratt-parser_pratt-parser ${pratt-parser_warning_guard}
+    INTERFACE
+    "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
 )
 
-FetchContent_Declare(
-    robin_hood
-    URL https://raw.githubusercontent.com/martinus/robin-hood-hashing/master/src/include/robin_hood.h
-    DOWNLOAD_NO_EXTRACT 1
-    DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}/thirdparty/robin_hood
-    SOURCE_DIR ${PROJECT_SOURCE_DIR}/thirdparty/robin_hood
-)
+target_compile_features(pratt-parser_pratt-parser INTERFACE cxx_std_17)
 
-FetchContent_MakeAvailable(doctest fast_float robin_hood)
+# ---- Install rules ----
 
-set(THIRDPARTY_INCLUDE_DIRS
-    "${fast_float_SOURCE_DIR}/include"
-    "${robin_hood_SOURCE_DIR}")
-
-if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
-    set(PRATT_PARSER_INCLUDE_DIRS
-        "${PROJECT_SOURCE_DIR}/include"
-        "${THIRDPARTY_INCLUDE_DIRS}" PARENT_SCOPE)
+if(NOT CMAKE_SKIP_INSTALL_RULES)
+  include(cmake/install-rules.cmake)
 endif()
 
-# Export compile commands
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
-if(CMAKE_EXPORT_COMPILE_COMMANDS)
-    set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
+# ---- Examples ----
+
+if(PROJECT_IS_TOP_LEVEL)
+  option(BUILD_EXAMPLES "Build examples tree." "${pratt-parser_DEVELOPER_MODE}")
+  if(BUILD_EXAMPLES)
+    add_subdirectory(example)
+  endif()
 endif()
 
-add_library(expression-parser INTERFACE)
-target_include_directories(expression-parser INTERFACE ./include ${THIRDPARTY_INCLUDE_DIRS})
-target_compile_features(expression-parser INTERFACE cxx_std_17)
+# ---- Developer mode ----
 
-add_executable(calculator src/calculator.cpp)
-target_link_libraries(calculator expression-parser)
+if(NOT pratt-parser_DEVELOPER_MODE)
+  return()
+elseif(NOT PROJECT_IS_TOP_LEVEL)
+  message(
+      AUTHOR_WARNING
+      "Developer mode is intended for developers of pratt-parser"
+  )
+endif()
 
-add_executable(sexpr src/sexpr.cpp)
-target_link_libraries(sexpr expression-parser)
-
-add_executable(expression-parser-test tests/calculator.cpp)
-target_include_directories(expression-parser-test PRIVATE src/)
-target_link_libraries(expression-parser-test expression-parser)
-
-add_test(NAME expression-parser-test COMMAND expression-parser-test)
-enable_testing()
+include(cmake/dev-mode.cmake)
