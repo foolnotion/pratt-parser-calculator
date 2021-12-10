@@ -2,135 +2,31 @@
 #define PRATT_LEXER_HPP
 
 #include <algorithm>
-#include <iostream>
+#include <cmath>
 #include <ostream>
 #include <string_view>
 #include <unordered_map>
+#include <utility>
 #include <vector>
+
 #include "fast_float/fast_float.h"
 #include "robin_hood.h"
 
+#include "token.hpp"
+
 namespace pratt {
 
-enum token_kind : int {
-    lparen,
-    rparen,
-    add,
-    sub,
-    mul,
-    div,
-    log,
-    exp,
-    sin,
-    cos,
-    tan,
-    tanh,
-    sqrt,
-    cbrt,
-    square,
-    pow,
-    variable,
-    constant,
-    eof
-};
-
-constexpr int token_count = token_kind::eof + 1;
-
-static constexpr std::array<const char*, token_count> token_name = {
-    "(",
-    ")",
-    "+",
-    "-",
-    "*",
-    "/",
-    "log",
-    "exp",
-    "sin",
-    "cos",
-    "tan",
-    "tanh",
-    "sqrt",
-    "cbrt",
-    "square",
-    "^",
-    "var",
-    "C",
-    "EOF"
-};
-
-const robin_hood::unordered_flat_map<std::string_view, token_kind> token_map = {
-    { "(", token_kind::lparen },
-    { ")", token_kind::rparen },
-    { "+", token_kind::add },
-    { "-", token_kind::sub },
-    { "*", token_kind::mul },
-    { "/", token_kind::div },
-    { "log", token_kind::log },
-    { "exp", token_kind::exp },
-    { "sin", token_kind::sin },
-    { "cos", token_kind::cos },
-    { "tan", token_kind::tan },
-    { "tanh", token_kind::tanh },
-    { "sqrt", token_kind::sqrt },
-    { "cbrt", token_kind::cbrt },
-    { "square", token_kind::square },
-    { "^", token_kind::pow }
-};
-
-template <char... args>
-inline bool is(char c) { return ((c == args) || ...); }
-
-constexpr char lp = '(';
-constexpr char rp = ')';
-constexpr char sp = ' ';
-
-template<typename T>
-struct token {
-    using value_t = T;
-
-    token_kind kind;  // token kind
-    T value;          // value for terminals
-    std::string name; // name (for variables)
-
-    token(token_kind kind_ = token_kind::eof, T val_ = T(), std::string const& name_ = "")
-        : kind(kind_)
-        , value(val_)
-        , name(name_)
-    {
-    }
-
-    template <token_kind... args>
-    inline bool is() const noexcept { return ((kind == args) || ...); }
-
-    friend std::ostream& operator<<(std::ostream& os, token const& tok)
-    {
-        switch (tok.kind) {
-        case token_kind::constant: {
-            os << tok.value;
-            break;
-        }
-        case token_kind::variable: {
-            os << tok.name;
-            break;
-        }
-        default: {
-            os << token_name[static_cast<int>(tok.kind)];
-        }
-        }
-        return os;
-    }
-};
-
-template<typename T, typename V>
+template<typename TOKEN, typename CONV, typename MAP>
 class lexer {
 public:
-    lexer(std::string const& infix)
-        : expr_(infix)
+    explicit lexer(std::string infix, MAP const& map)
+        : token_map_(map)
+        , expr_(std::move(infix))
         , pos_(0)
     {
     }
 
-    inline T peek() const
+    inline auto peek() const -> TOKEN
     {
         auto [t, _] = next();
         return t;
@@ -142,17 +38,17 @@ public:
         pos_ = i;
     }
 
-    inline bool eof() const { return pos_ >= expr_.size(); }
+    [[nodiscard]] inline auto eof() const -> bool { return pos_ >= expr_.size(); }
 
     inline void expect(token_kind k) const { assert(peek().kind == k); }
 
-    inline std::vector<T> tokenize()
+    inline auto tokenize() -> std::vector<TOKEN>
     {
-        std::vector<T> tokens;
+        std::vector<TOKEN> tokens;
         do {
             tokens.push_back(peek());
             consume();
-        } while (tokens.back().kind != token_kind::eof);
+        } while (tokens.back().kind() != token_kind::eof);
         return tokens;
     }
 
@@ -163,10 +59,10 @@ public:
 
 private:
     // returns a new token and index
-    inline std::tuple<T, size_t> next() const
+    inline auto next() const -> std::tuple<TOKEN, size_t>
     {
         if (pos_ >= expr_.size()) {
-            return { T(token_kind::eof), expr_.size() };
+            return { TOKEN(token_kind::eof), expr_.size() };
         }
 
         auto i = pos_;
@@ -188,35 +84,33 @@ private:
         return { parse(std::string_view(expr_.data() + i, j - i)), j };
     }
 
-    inline T parse(std::string_view sv) const
+    inline auto parse(std::string_view sv) const -> TOKEN
     {
         // check if we can match a known token name
-        if (auto it = token_map.find(sv); it != token_map.end()) {
-            return T(it->second);
+        if (auto it = token_map_.find(sv); it != token_map_.end()) {
+            return it->second;
         }
 
         // check if we can match a double value
-        double result;
+        double result{0};
         auto answer = fast_float::from_chars(sv.data(), sv.data() + sv.size(), result);
         if(answer.ec == std::errc()) {
-            T t(token_kind::constant);
-            t.value = V{}(result);
-            return t;
+            return TOKEN(token_kind::constant) = conv_(result);
         }
 
         // check if we can match a variable name (all chars are alphanumeric, the first char is a letter)
         if (std::isalpha(sv.front()) && std::all_of(sv.begin(), sv.end(), [](auto c) { return std::isalnum(c) || is<'_'>(c); })) {
-            T t(token_kind::variable);
-            t.name = std::string(sv.begin(), sv.end());
+            TOKEN t(token_kind::variable, std::string(sv.begin(), sv.end()));
             return t;
         }
 
-        return T(token_kind::eof);
+        return TOKEN(token_kind::eof);
     }
 
+    MAP token_map_;
+    CONV conv_;
     std::string expr_;
     size_t pos_;
 };
-
-} // namespace
+} // namespace pratt
 #endif

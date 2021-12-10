@@ -7,13 +7,34 @@
 
 namespace pratt::test {
 
-using T = pratt::token<double>;
-using NUD = pratt::calculator::nud;
-using LED = pratt::calculator::led;
-using CONV = pratt::calculator::identity;
+using token = pratt::token<double>;
+using nud = pratt::calculator::nud;
+using led = pratt::calculator::led;
+using conv = pratt::calculator::identity;
 
-double eval(std::string const& infix) {
-    return pratt::parser<NUD, LED, CONV>(infix, {}).parse();
+using pratt::calculator::operations;
+using pratt::associativity;
+
+const std::unordered_map<std::string_view, token> tokens {
+    { "+", token(pratt::token_kind::dynamic, "+", operations::add, 10, associativity::left) },
+    { "-", token(pratt::token_kind::dynamic, "-", operations::sub, 10, associativity::left) },
+    { "*", token(pratt::token_kind::dynamic, "*", operations::mul, 20, associativity::left) },
+    { "/", token(pratt::token_kind::dynamic, "/", operations::div, 20, associativity::left) },
+    { "^", token(pratt::token_kind::dynamic, "^", operations::pow, 30, associativity::right) },
+    { "exp", token(pratt::token_kind::dynamic, "exp", operations::exp, 30, associativity::none) },
+    { "log", token(pratt::token_kind::dynamic, "log", operations::log, 30, associativity::none) },
+    { "sin", token(pratt::token_kind::dynamic, "sin", operations::sin, 30, associativity::none) },
+    { "cos", token(pratt::token_kind::dynamic, "cos", operations::cos, 30, associativity::none) },
+    { "tan", token(pratt::token_kind::dynamic, "tan", operations::tan, 30, associativity::none) },
+    { "sqrt", token(pratt::token_kind::dynamic, "sqrt", operations::sqrt, 30, associativity::none) },
+    { "square", token(pratt::token_kind::dynamic, "square", operations::square, 30, associativity::right) },
+    { "(", token(pratt::token_kind::lparen, "(", operations::noop, 0, associativity::none) },
+    { ")", token(pratt::token_kind::rparen, "(", operations::noop, 0, associativity::none) },
+    { "eof", token(pratt::token_kind::eof, "eof", operations::noop, 0, associativity::none) }
+};
+
+auto eval(std::string const& infix) -> double {
+    return pratt::parser<nud, led, conv>(infix, tokens, {}).parse();
 }
 
 TEST_CASE("Tokenizer")
@@ -22,7 +43,7 @@ TEST_CASE("Tokenizer")
     {
         std::string infix("1 + 2");
 
-        pratt::lexer<T, CONV> lex(infix);
+        pratt::lexer<token, conv, decltype(tokens)> lex(infix, tokens);
         auto tokens = lex.tokenize();
         CHECK(tokens.size() == 4);
     }
@@ -30,8 +51,7 @@ TEST_CASE("Tokenizer")
     SUBCASE("(1 + 2)")
     {
         std::string infix("(1 + 2)");
-
-        pratt::lexer<T, CONV> lex(infix);
+        pratt::lexer<token, conv, decltype(tokens)> lex(infix, tokens);
         auto tokens = lex.tokenize();
         std::cout << "tokens:\n";
         for (auto const& t : tokens) {
@@ -43,7 +63,7 @@ TEST_CASE("Tokenizer")
     SUBCASE("1 + exp(2) + log(3)")
     {
         std::string infix("1 + exp(2) + log(3)");
-        pratt::lexer<T, CONV> lex(infix);
+        pratt::lexer<token, conv, decltype(tokens)> lex(infix, tokens);
         auto tokens = lex.tokenize();
         std::cout << "tokens:\n";
         for (auto const& t : tokens) {
@@ -55,7 +75,7 @@ TEST_CASE("Tokenizer")
     SUBCASE("exp(tan(5))")
     {
         std::string infix("exp(tan(5))");
-        pratt::lexer<T, CONV> lex(infix);
+        pratt::lexer<token, conv, decltype(tokens)> lex(infix, tokens);
         auto tokens = lex.tokenize();
         std::cout << "tokens:\n";
         for (auto const& t : tokens) {

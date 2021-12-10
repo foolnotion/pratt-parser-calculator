@@ -7,44 +7,63 @@
 
 namespace pratt::sexpr {
 
+enum operations { add,
+    sub,
+    mul,
+    div,
+    pow,
+    exp,
+    log,
+    sin,
+    cos,
+    tan,
+    sqrt,
+    square,
+    noop };
+
 struct nud {
     using token_t = token<std::string>;
     using value_t = typename token_t::value_t;
 
     template <typename Parser>
-    value_t operator()(Parser& parser, token_kind tok, token_t const& left)
+    auto operator()(Parser& parser, token_t const& tok, token_t const& left) -> value_t
     {
-        auto bp = token_precedence[tok]; // binding power
+        auto bp = tok.precedence(); // binding power
 
-        switch (tok) {
+        switch (tok.kind()) {
         case token_kind::constant: {
-            return left.value;
+            return left.value();
         }
 
         case token_kind::variable: {
-            return left.name;
+            return left.name();
         }
 
-        case token_kind::sub:
-        case token_kind::exp:
-        case token_kind::log:
-        case token_kind::sin:
-        case token_kind::cos:
-        case token_kind::tan:
-        case token_kind::tanh:
-        case token_kind::sqrt:
-        case token_kind::cbrt:
-        case token_kind::square: {
-            return "(" + std::string(pratt::token_name[tok]) + " " + parser.parse_bp(bp, token_kind::eof).value + ")";
+        case token_kind::dynamic: {
+            switch (tok.opcode()) {
+            case operations::sub:
+            case operations::exp:
+            case operations::log:
+            case operations::sin:
+            case operations::cos:
+            case operations::tan:
+            case operations::sqrt:
+                return "(" + tok.name() + " " + parser.parse_bp(bp, token_kind::eof).value() + ")";
+            default: {
+                throw std::runtime_error("led: unknown dynamic node opcode " + std::to_string(tok.opcode()));
+            }
+            }
+            break;
         }
 
         case token_kind::lparen: {
-            return parser.parse_bp(bp, token_kind::rparen).value;
+            return parser.parse_bp(bp, token_kind::rparen).value();
         }
 
         default: {
-            throw std::runtime_error("nud: unsupported token " + std::string(token_name[static_cast<int>(tok)]));
+            throw std::runtime_error("nud: unsupported token " + tok.to_string());
         };
+            // unreachable
         }
     }
 };
@@ -54,33 +73,38 @@ struct led {
     using value_t = token_t::value_t;
 
     template <typename Parser>
-    value_t operator()(Parser&, token_kind tok, token_t const& left, token_t const& right)
+    auto operator()(Parser& /*unused*/, token_t const& tok, token_t const& left, token_t const& right) -> value_t
     {
-        auto const& lhs = left.value;
-        auto const& rhs = right.value;
+        auto const& lhs = left.value();
+        auto const& rhs = right.value();
 
-        switch (tok) {
-        case token_kind::add:
-        case token_kind::sub:
-        case token_kind::mul:
-        case token_kind::div:
-        case token_kind::pow:
-            return "(" + std::string(pratt::token_name[tok]) + " " + lhs + " " + rhs + ")";
+        switch (tok.kind()) {
+
+        case token_kind::dynamic:
+            switch (tok.opcode()) {
+            case operations::add:
+            case operations::sub:
+            case operations::mul:
+            case operations::div:
+            case operations::pow:
+                return "(" + tok.name() + " " + lhs + " " + rhs + ")";
+            }
 
         default:
-            throw std::runtime_error("led: unsupported token " + std::string(token_name[static_cast<int>(tok)]));
+            throw std::runtime_error("led: unsupported token " + tok.to_string());
         };
     }
 };
 
 struct conv {
-    auto operator()(double v) const noexcept -> std::string 
+    auto operator()(double v) const noexcept -> std::string
     {
         std::ostringstream buf;
         buf << v;
         return buf.str();
     }
 };
-}
+
+} // namespace pratt::sexpr
 
 #endif
