@@ -20,10 +20,9 @@
             name = "vstat-env";
             hardeningDisable = [ "all" ];
             impureUseNativeOptimizations = true;
-            nativeBuildInputs = with pkgs; [ cmake clang_12 clang-tools cppcheck ];
+            nativeBuildInputs = with pkgs; [ cmake clang_13 clang-tools cppcheck ];
             buildInputs = with pkgs; [
                 pkgs.nur.repos.foolnotion.fast_float
-                pkgs.nur.repos.foolnotion.robin-hood-hashing
                 doctest
               ];
 
