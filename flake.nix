@@ -14,21 +14,20 @@
             inherit system;
             overlays = [ nur.overlay ];
           };
-        in
+        in rec
         {
-          devShell = pkgs.gcc11Stdenv.mkDerivation {
-            name = "vstat-env";
-            hardeningDisable = [ "all" ];
-            impureUseNativeOptimizations = true;
-            nativeBuildInputs = with pkgs; [ cmake clang_13 clang-tools cppcheck ];
+          defaultPackage = pkgs.gcc11Stdenv.mkDerivation {
+            name = "pratt-parser";
+            src = self;
+            nativeBuildInputs = with pkgs; [ cmake ];
             buildInputs = with pkgs; [
                 pkgs.nur.repos.foolnotion.fast_float
                 doctest
               ];
+          };
 
-            shellHook = ''
-              LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath [ pkgs.gcc11Stdenv.cc.cc.lib ]};
-              '';
+          devShell = pkgs.gcc11Stdenv.mkDerivation {
+            name = "pratt-parser-dev";
           };
         }
       );
