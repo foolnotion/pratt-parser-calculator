@@ -1,12 +1,8 @@
 #ifndef PRATT_LEXER_HPP
 #define PRATT_LEXER_HPP
 
-#include <algorithm>
-#include <cmath>
 #include <ostream>
 #include <string_view>
-#include <unordered_map>
-#include <utility>
 #include <vector>
 
 #include "fast_float/fast_float.h"

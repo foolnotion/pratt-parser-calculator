@@ -1,8 +1,6 @@
 #ifndef PRATT_PARSER_HPP
 #define PRATT_PARSER_HPP
 
-#include <cassert>
-#include <cmath>
 #include <unordered_map>
 #include <optional>
 
@@ -12,7 +10,7 @@ namespace pratt {
 
 template <typename NUD, typename LED, typename CONV,
          typename TokenMap = std::unordered_map<std::string_view, typename NUD::token_t>,
-         typename VarMap = std::unordered_map<std::string_view, size_t>>
+         typename VarMap = std::unordered_map<std::string, size_t>>
 class parser {
 public:
     using token_t = typename NUD::token_t;
