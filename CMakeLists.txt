@@ -42,6 +42,10 @@ target_include_directories(
 
 target_compile_features(pratt-parser_pratt-parser INTERFACE cxx_std_17)
 
+# ---- Add dependencies ----
+find_package(FastFloat REQUIRED)
+target_link_libraries(pratt-parser_pratt-parser INTERFACE FastFloat::fast_float)
+
 # ---- Install rules ----
 
 if(NOT CMAKE_SKIP_INSTALL_RULES)
