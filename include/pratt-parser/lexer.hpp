@@ -89,7 +89,9 @@ private:
         double result{0};
         auto answer = fast_float::from_chars(sv.data(), sv.data() + sv.size(), result);
         if(answer.ec == std::errc()) {
-            return TOKEN(token_kind::constant) = conv_(result);
+            TOKEN tok{token_kind::constant};
+            tok = conv_(result);
+            return tok;
         }
 
         // check if we can match a variable name (all chars are alphanumeric, the first char is a letter)

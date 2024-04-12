@@ -51,7 +51,7 @@ public:
         , name_(std::move(name))
         , opcode_(opcode)
         , precedence_(precedence)
-        , associativity_(assoc) 
+        , associativity_(assoc)
     {
     }
 
@@ -71,9 +71,9 @@ public:
 
     [[nodiscard]] auto to_string() const -> std::string
     {
-      std::ostringstream ss;
-      ss << *this;
-      return ss.str();
+        std::ostringstream ss;
+        ss << *this;
+        return ss.str();
     }
 
     friend auto operator<<(std::ostream& os, token const& tok) -> std::ostream&
