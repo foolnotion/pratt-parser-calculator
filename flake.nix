@@ -26,7 +26,7 @@
               ];
           };
 
-          devShells.default = pkgs.gcc11Stdenv.mkDerivation {
+          devShells.default = pkgs.gcc13Stdenv.mkDerivation {
             name = "pratt-parser-dev";
 
             nativeBuildInputs = packages.default.nativeBuildInputs;
