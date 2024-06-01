@@ -22,7 +22,7 @@
 
             buildInputs = with pkgs; [
                 doctest
-                fast_float
+                fast-float
               ];
           };
 
